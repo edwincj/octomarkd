@@ -10,8 +10,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, type FC, type FormEvent } from "react";
 import { Loader2, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { UserResults } from "@/pages/Dashboard/UserResults";
-import { RepoResults } from "@/pages/Dashboard/RepoResults";
+import { UserResults } from "@/pages/dashboard/UserResults";
+import { RepoResults } from "@/pages/dashboard/RepoResults";
 import { getRepos, getUsers } from "@/services/github";
 import type { GitRepo, GitUser } from "@/types";
 

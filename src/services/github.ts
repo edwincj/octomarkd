@@ -32,12 +32,12 @@ export const getRepos = async (
 
 export const getUserRepos = async (
   user: string
-): Promise<GitHubApiResponse<GitRepo>> => {
+): Promise<GitRepo[]> => {
   try {
     const response = await fetch(
       `https://api.github.com/users/${user}/repos?sort=updated`
     );
-    const data: GitHubApiResponse<GitRepo> = await response.json();
+    const data: GitRepo[] = await response.json();
     return data;
   } catch (error) {
     console.error(error);

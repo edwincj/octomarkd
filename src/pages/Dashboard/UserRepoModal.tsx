@@ -43,7 +43,7 @@ export function UserRepositoriesModal({
     setError(null);
 
     try {
-      const { items } = await getUserRepos(username);
+      const items = await getUserRepos(username);
 
       const bookmarks: Array<BookMark> = JSON.parse(
         localStorage.getItem("bookmarks") || "[]"

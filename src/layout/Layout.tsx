@@ -23,7 +23,7 @@ const Layout: FC = () => {
             <NavLink to="/dashboard">
               <div className="flex items-center gap-2">
                 <FolderGit className="h-6 w-6" />
-                <span className="text-xl font-bold">OctoMarkd</span>
+                <span className="text-xl font-bold">OctoMarkD</span>
               </div>
             </NavLink>
           </div>

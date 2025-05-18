@@ -113,3 +113,9 @@ export type GitHubApiResponse<T> = {
 export type BookMark = Partial<GitRepo> & {
   bookmarked_at: string;
 };
+
+export type User = {
+  email: string;
+  name: string;
+  password: string;
+}
