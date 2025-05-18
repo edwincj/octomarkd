@@ -1,0 +1,218 @@
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Star, GitFork, ExternalLink } from "lucide-react";
+import { NavLink } from "react-router";
+import type { BookMark, GitRepo } from "@/types";
+import { getUserRepos } from "@/services/github";
+
+interface UserRepositoriesModalProps {
+  username: string | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function UserRepositoriesModal({
+  username,
+  isOpen,
+  onClose,
+}: UserRepositoriesModalProps) {
+  const [repositories, setRepositories] = useState<Array<GitRepo>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && username) {
+      fetchRepositories(username);
+    } else {
+      setRepositories([]);
+      setError(null);
+    }
+  }, [isOpen, username]);
+
+  const fetchRepositories = async (username: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { items } = await getUserRepos(username);
+
+      const bookmarks: Array<BookMark> = JSON.parse(
+        localStorage.getItem("bookmarks") || "[]"
+      );
+      const bookmarkedIds = new Set(bookmarks.map((b) => b.id));
+
+      const updatedRepos = items
+        ? items.map((repo) => ({
+            ...repo,
+            isBookmarked: bookmarkedIds.has(repo.id),
+          }))
+        : [];
+
+      setRepositories(updatedRepos || []);
+    } catch (error) {
+      console.error("Error fetching repositories:", error);
+      setError("Failed to load repositories. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBookmark = async (repository: GitRepo) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
+      const bookmarks: Array<BookMark> = JSON.parse(
+        localStorage.getItem("bookmarks") || "[]"
+      );
+      const newBookmark: BookMark = {
+        id: repository.id,
+        name: repository.name,
+        full_name: repository.full_name,
+        description: repository.description,
+        html_url: repository.html_url,
+        owner: {
+          login: repository.owner.login,
+          avatar_url: repository.owner.avatar_url,
+          html_url: repository.owner.html_url,
+        },
+        stargazers_count: repository.stargazers_count,
+        forks_count: repository.forks_count,
+        language: repository.language,
+        bookmarked_at: new Date().toISOString(),
+      };
+
+      if (!bookmarks.some((b) => b.id === repository.id)) {
+        bookmarks.push(newBookmark);
+        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+        const updatedRepos = repositories.map((repo) =>
+          repo.id === repository.id ? { ...repo, isBookmarked: true } : repo
+        );
+        setRepositories(updatedRepos);
+      }
+    } catch (error) {
+      console.error("Error bookmarking repository:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader className="sticky">
+          <DialogTitle className="flex items-center gap-2">
+            {username && (
+              <>
+                <Avatar className="h-6 w-6">
+                  <AvatarImage
+                    src={
+                      repositories[0]?.owner?.avatar_url ||
+                      `/placeholder.svg?height=24&width=24`
+                    }
+                    alt={username}
+                  />
+                  <AvatarFallback>
+                    {username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{username}'s Repositories</span>
+              </>
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            {repositories.length > 0
+              ? `Showing ${repositories.length} repositories`
+              : "Loading repositories..."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 my-4">
+            <p className="text-sm text-red-500">{error}</p>
+          </div>
+        )}
+
+        {!isLoading && repositories.length === 0 && !error && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No repositories found</p>
+          </div>
+        )}
+
+        <div className="space-y-4 mt-4">
+          {repositories.map((repo) => (
+            <div
+              key={repo.id}
+              className="rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    {repo.name}
+                    {repo.language && (
+                      <Badge variant="outline" className="ml-2">
+                        {repo.language}
+                      </Badge>
+                    )}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {repo.description || "No description provided"}
+                  </p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4" />
+                      <span>{repo.stargazers_count.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <GitFork className="h-4 w-4" />
+                      <span>{repo.forks_count.toLocaleString()}</span>
+                    </div>
+                    <div className="text-xs">
+                      Updated: {new Date(repo.updated_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1"
+                    asChild
+                  >
+                    <NavLink
+                      to={repo.html_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      <span>View</span>
+                    </NavLink>
+                  </Button>
+                  <Button
+                    variant={repo.isBookmarked ? "secondary" : "default"}
+                    size="sm"
+                    onClick={() => handleBookmark(repo)}
+                    disabled={repo.isBookmarked}
+                  >
+                    {repo.isBookmarked ? "Bookmarked" : "Bookmark"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

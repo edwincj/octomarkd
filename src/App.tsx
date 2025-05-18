@@ -1,5 +1,5 @@
-import RouteContainer from "@/routes/routeContainer";
-import { ThemeProvider } from "@/components/theme-provider";
+import RouteContainer from "@/layout/RouteContainer"
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 function App() {
   return (
