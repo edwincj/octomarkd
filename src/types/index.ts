@@ -110,7 +110,18 @@ export type GitHubApiResponse<T> = {
   total_count: number;
 };
 
-export type BookMark = Partial<GitRepo> & {
+export type BookMark = Pick<
+  GitRepo,
+  | "id"
+  | "name"
+  | "full_name"
+  | "html_url"
+  | "description"
+  | "owner"
+  | "forks_count"
+  | "stargazers_count"
+  | "language"
+> & {
   bookmarked_at: string;
 };
 
@@ -118,4 +129,6 @@ export type User = {
   email: string;
   name: string;
   password: string;
-}
+};
+
+export type UserBookMarks = Map<string, Array<BookMark>>;

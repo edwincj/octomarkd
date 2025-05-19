@@ -12,7 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Bookmark, GitFork, Loader2, Star } from "lucide-react";
 import { NavLink } from "react-router";
-import type { BookMark, GitRepo } from "@/types";
+import type { GitRepo } from "@/types";
+import { useBookMarks } from "@/context/BookMarkProvider";
 
 interface RepoResultsProps {
   repositories: Array<GitRepo>;
@@ -33,45 +34,14 @@ export function RepoResults({ repositories }: RepoResultsProps) {
 
 function RepositoryCard({ repository }: { repository: GitRepo }) {
   const [isBookmarking, setIsBookmarking] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(() => {
-    if (typeof window !== "undefined") {
-      const bookmarks: Array<BookMark> = JSON.parse(
-        localStorage.getItem("bookmarks") || "[]"
-      );
-      return bookmarks.some((b) => b.id === repository.id);
-    }
-    return false;
-  });
+  const { isBookmarked: isRepoBookMarked, addBookMark } = useBookMarks();
+  const [isBookmarked,setIsBookmarked] = useState(() => isRepoBookMarked(repository.id));
 
   const handleBookmark = async () => {
     setIsBookmarking(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
-      const bookmarks: Array<BookMark> = JSON.parse(
-        localStorage.getItem("bookmarks") || "[]"
-      );
-      const newBookmark: BookMark = {
-        id: repository.id,
-        name: repository.name,
-        full_name: repository.full_name,
-        description: repository.description,
-        html_url: repository.html_url,
-        owner: {
-          login: repository.owner.login,
-          avatar_url: repository.owner.avatar_url,
-          html_url: repository.owner.html_url,
-        },
-        stargazers_count: repository.stargazers_count,
-        forks_count: repository.forks_count,
-        language: repository.language,
-        bookmarked_at: new Date().toISOString(),
-      };
-
-      if (!bookmarks.some((b) => b.id === repository.id)) {
-        bookmarks.push(newBookmark);
-        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-        setIsBookmarked(true);
-      }
+      await addBookMark(repository);
+      setIsBookmarked(true);
     } catch (error) {
       console.error("Error bookmarking repository:", error);
     } finally {

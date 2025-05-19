@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState } from "react";
@@ -49,7 +47,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
+    <div className="container flex h-screen w-screen flex-col items-center justify-center mx-auto">
       <div className="absolute left-4 top-4 md:left-8 md:top-8 flex items-center">
         <FolderGit className="mr-2 h-8 w-8" />
         <span className="text-3xl">OctoMarkD</span>

@@ -6,6 +6,7 @@ import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import { useAuth } from "@/context/AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
+import Bookmarks from "@/pages/bookmarks";
 
 const RouteContainer: FC = () => {
   const { isLoggedIn } = useAuth();
@@ -29,6 +30,7 @@ const RouteContainer: FC = () => {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="/bookmarks" element={<Bookmarks />} />
       </Route>
     </Routes>
   );

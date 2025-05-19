@@ -11,8 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Star, GitFork, ExternalLink } from "lucide-react";
 import { NavLink } from "react-router";
-import type { BookMark, GitRepo } from "@/types";
+import type { GitRepo } from "@/types";
 import { getUserRepos } from "@/services/github";
+import { useBookMarks } from "@/context/BookMarkProvider";
 
 interface UserRepositoriesModalProps {
   username: string | null;
@@ -26,79 +27,55 @@ export function UserRepositoriesModal({
   onClose,
 }: UserRepositoriesModalProps) {
   const [repositories, setRepositories] = useState<Array<GitRepo>>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isBookMarking, setIsBookMarking] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { addBookMark, isBookmarked } = useBookMarks();
 
   useEffect(() => {
+    const fetchRepositories = async (username: string) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const items = await getUserRepos(username);
+
+        const updatedRepos = items
+          ? items.map((repo) => ({
+              ...repo,
+              isBookmarked: isBookmarked(repo.id),
+            }))
+          : [];
+
+        setRepositories(updatedRepos || []);
+      } catch (error) {
+        console.error("Error fetching repositories:", error);
+        setError("Failed to load repositories. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
     if (isOpen && username) {
       fetchRepositories(username);
     } else {
       setRepositories([]);
       setError(null);
     }
-  }, [isOpen, username]);
-
-  const fetchRepositories = async (username: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const items = await getUserRepos(username);
-
-      const bookmarks: Array<BookMark> = JSON.parse(
-        localStorage.getItem("bookmarks") || "[]"
-      );
-      const bookmarkedIds = new Set(bookmarks.map((b) => b.id));
-
-      const updatedRepos = items
-        ? items.map((repo) => ({
-            ...repo,
-            isBookmarked: bookmarkedIds.has(repo.id),
-          }))
-        : [];
-
-      setRepositories(updatedRepos || []);
-    } catch (error) {
-      console.error("Error fetching repositories:", error);
-      setError("Failed to load repositories. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [isOpen, username, isBookmarked]);
 
   const handleBookmark = async (repository: GitRepo) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
-      const bookmarks: Array<BookMark> = JSON.parse(
-        localStorage.getItem("bookmarks") || "[]"
-      );
-      const newBookmark: BookMark = {
-        id: repository.id,
-        name: repository.name,
-        full_name: repository.full_name,
-        description: repository.description,
-        html_url: repository.html_url,
-        owner: {
-          login: repository.owner.login,
-          avatar_url: repository.owner.avatar_url,
-          html_url: repository.owner.html_url,
-        },
-        stargazers_count: repository.stargazers_count,
-        forks_count: repository.forks_count,
-        language: repository.language,
-        bookmarked_at: new Date().toISOString(),
-      };
+      setIsBookMarking(repository.id);
+      await addBookMark(repository);
 
-      if (!bookmarks.some((b) => b.id === repository.id)) {
-        bookmarks.push(newBookmark);
-        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-        const updatedRepos = repositories.map((repo) =>
-          repo.id === repository.id ? { ...repo, isBookmarked: true } : repo
-        );
-        setRepositories(updatedRepos);
-      }
+      const updatedRepos = repositories.map((repo) =>
+        repo.id === repository.id ? { ...repo, isBookmarked: true } : repo
+      );
+      setRepositories(updatedRepos);
     } catch (error) {
       console.error("Error bookmarking repository:", error);
+    } finally {
+      setIsBookMarking(null);
     }
   };
 
@@ -203,7 +180,7 @@ export function UserRepositoriesModal({
                     variant={repo.isBookmarked ? "secondary" : "default"}
                     size="sm"
                     onClick={() => handleBookmark(repo)}
-                    disabled={repo.isBookmarked}
+                    disabled={repo.isBookmarked || isBookMarking === repo.id}
                   >
                     {repo.isBookmarked ? "Bookmarked" : "Bookmark"}
                   </Button>
