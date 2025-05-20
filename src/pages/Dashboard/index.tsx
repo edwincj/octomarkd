@@ -100,11 +100,10 @@ const Dashboard: FC = () => {
       {searchType === "users" && userResults.length > 0 && (
         <UserResults users={userResults} />
       )}
+      
       {searchType === "repositories" && repoResults.length > 0 && (
         <RepoResults repositories={repoResults} />
       )}
-
-      {/* {searchType === "repositories" && repoResults.length > 0 && <RepoSearchResults repositories={repoResults} />} */}
 
       {isLoading && (
         <div className="flex justify-center py-8">

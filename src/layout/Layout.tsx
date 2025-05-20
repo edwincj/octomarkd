@@ -20,7 +20,7 @@ const Layout: FC = () => {
       <header className="sticky top-0 z-10 border-b bg-background px-8">
         <div className="flex h-16 items-center justify-between py-4">
           <div className="flex items-center gap-2">
-            <NavLink to="/dashboard">
+            <NavLink to="/">
               <div className="flex items-center gap-2">
                 <FolderGit className="h-6 w-6" />
                 <span className="text-xl font-bold">OctoMarkD</span>

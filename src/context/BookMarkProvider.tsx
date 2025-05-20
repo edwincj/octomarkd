@@ -8,7 +8,9 @@ type BookMarkContextType = {
   isLoading: boolean;
   addBookMark: (repoToMark: GitRepo) => Promise<void>;
   removeBookMark: (id: number) => Promise<void>;
+  addMultipleBookMarks: (newMarks: BookMark[]) => Promise<void>
   isBookmarked: (repoId: number) => boolean;
+  bookmarkIds: Set<number>;
 };
 
 const BookMarkContext = createContext<BookMarkContextType | undefined>(
@@ -20,7 +22,7 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
   const [bookMarks, setBookmarks] = useState<Array<BookMark>>([]);
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const bookMarKIds = useRef<Set<number>>(new Set());
+  const [bookmarkIds, setBookmarkIds] = useState<Set<number>>(new Set());
   const userBooKMarkMap = useRef<UserBookMarks>(new Map());
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   useEffect(() => {
-    bookMarKIds.current = new Set(bookMarks.map((mark) => mark.id));
+    setBookmarkIds(new Set(bookMarks.map((mark) => mark.id)));
   }, [bookMarks]);
 
   const addBookMark = async (repoToMark: GitRepo) => {
@@ -87,8 +89,23 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
     setBookmarks(updated);
   };
 
+  const addMultipleBookMarks = async (newMarks: BookMark[]) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const updated = [...bookMarks, ...newMarks];
+      userBooKMarkMap.current.set(email, updated);
+      localStorage.setItem(
+        "userBookMarks",
+        JSON.stringify(Array.from(userBooKMarkMap.current.entries()))
+      );
+      setBookmarks(updated);
+    } catch (error) {
+      console.error("Error bookmarking repository:", error);
+    }
+  };
+
   const isBookmarked = (repoId: number): boolean =>
-    bookMarKIds.current.has(repoId);
+    bookmarkIds.has(repoId);
 
   return (
     <BookMarkContext.Provider
@@ -98,6 +115,8 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isBookmarked,
         removeBookMark,
+        addMultipleBookMarks,
+        bookmarkIds
       }}
     >
       {children}
