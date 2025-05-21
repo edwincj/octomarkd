@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Star, GitFork, ExternalLink } from "lucide-react";
 import { NavLink } from "react-router";
 import type { GitRepo } from "@/types";
-import { getUserRepos, useGetInfiniteUserRepos } from "@/services/github";
+import { getUserRepos } from "@/services/github";
 import { useBookMarks } from "@/context/BookMarkProvider";
 
 interface UserRepositoriesModalProps {

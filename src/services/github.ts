@@ -46,3 +46,16 @@ export const validateRepository = async (
     return null;
   }
 };
+
+export const getUserRepos = async (user: string, page: number): Promise<GitRepo[]> => {
+  try {
+    const response = await fetch(
+      `https://api.github.com/users/${user}/repos?sort=updated&page=${page}&per_page=30`
+    );
+    const data: GitRepo[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to fetch github repositories of user");
+  }
+};
