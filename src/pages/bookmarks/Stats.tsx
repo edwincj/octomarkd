@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -6,15 +6,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-import type { BookMark } from "@/types"
-import { useBookMarks } from "@/context/BookMarkProvider"
+} from "@/components/ui/chart";
+import type { BookMark } from "@/types";
+import { useBookMarks } from "@/context/BookMarkProvider";
 
 const chartConfig = {
   views: {
@@ -24,7 +24,7 @@ const chartConfig = {
     label: "Repos BookMarked",
     color: "var( --color-chart-1)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 function groupByDate(bookmarks: BookMark[]): { date: string; count: number }[] {
   const counts: Record<string, number> = {};
@@ -34,13 +34,14 @@ function groupByDate(bookmarks: BookMark[]): { date: string; count: number }[] {
     counts[date] = (counts[date] || 0) + 1;
   }
 
-  const value = Object.entries(counts).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
-  console.log(value);
-  return value
+  const value = Object.entries(counts)
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return value;
 }
 
 export function Stats() {
- const {bookMarks} = useBookMarks();
+  const { bookMarks } = useBookMarks();
 
   return (
     <Card>
@@ -73,11 +74,11 @@ export function Stats() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value)
+                const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
-                })
+                });
               }}
             />
             <ChartTooltip
@@ -90,7 +91,7 @@ export function Stats() {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
-                    })
+                    });
                   }}
                 />
               }
@@ -100,5 +101,5 @@ export function Stats() {
         </ChartContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

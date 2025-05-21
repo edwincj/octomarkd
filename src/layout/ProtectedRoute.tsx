@@ -7,7 +7,6 @@ import { Navigate } from "react-router";
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isLoggedIn, loading } = useAuth();
   const { isLoading } = useBookMarks();
-  console.log(isLoggedIn, loading);
   if (loading || isLoading)
     return (
       <div className="w-screen h-screen flex items-center justify-center">

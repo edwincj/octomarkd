@@ -67,7 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userList.current.has(email)) throw new Error("User already exists");
 
       const user = { name, password: btoa(password) };
-      console.log(userList.current)
       const updatedUsers = new Map(userList.current);
       updatedUsers.set(email, user);
       localStorage.setItem("users", JSON.stringify(Array.from(updatedUsers.entries())));

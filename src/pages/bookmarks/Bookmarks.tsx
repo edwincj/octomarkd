@@ -77,13 +77,10 @@ export default function Bookmarks() {
         }
       );
       if (parseResult.errors.length > 0) {
-        console.log(parseResult.errors);
         throw new Error("Error parsing CSV file");
       }
-      console.log(parseResult);
       const validRepositories: BookMark[] = [];
       const existingIds = new Set(Array.from(bookmarkIds));
-      console.log(existingIds, "existingIds");
 
       for (const row of parseResult.data) {
         if (!row.full_name) continue;
@@ -108,7 +105,6 @@ export default function Bookmarks() {
           existingIds.add(repo.id);
         }
       }
-      console.log(validRepositories);
       addMultipleBookMarks(validRepositories);
       setImportStatus({
         status: "success",
