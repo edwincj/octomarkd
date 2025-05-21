@@ -27,7 +27,6 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user && user.email) {
-      setIsLoading(true);
       setEmail(user.email);
       const userBookMarks = localStorage.getItem("userBookMarks");
       if (userBookMarks) {
@@ -36,9 +35,8 @@ export function BookMarkProvider({ children }: { children: React.ReactNode }) {
         if (bookMarkMap.has(user.email))
           setBookmarks(bookMarkMap.get(user.email) ?? []);
       }
-
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [user]);
 
   useEffect(() => {
