@@ -79,7 +79,7 @@ describe('UserRepositoriesModal', () => {
       />
     );
     
-    expect(getUserRepos).toHaveBeenCalledWith('testuser');
+    expect(getUserRepos).toHaveBeenCalledWith('testuser', 1);
     
     expect(screen.getByText('Loading repositories...')).toBeInTheDocument();
     

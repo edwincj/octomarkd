@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Star, GitFork, ExternalLink } from "lucide-react";
 import { NavLink } from "react-router";
 import type { GitRepo } from "@/types";
-import { getUserRepos } from "@/services/github";
+import { getUserRepos, useGetInfiniteUserRepos } from "@/services/github";
 import { useBookMarks } from "@/context/BookMarkProvider";
 
 interface UserRepositoriesModalProps {
@@ -28,17 +28,28 @@ export function UserRepositoriesModal({
 }: UserRepositoriesModalProps) {
   const [repositories, setRepositories] = useState<Array<GitRepo>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [haveMore, setHaveMore] = useState<boolean>(false);
   const [isBookMarking, setIsBookMarking] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { addBookMark, isBookmarked } = useBookMarks();
+  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  // const list = useGetInfiniteUserRepos({user: username ?? '', enabled: isOpen, page: 1});
+
+  // useEffect(() => {
+  //   setIsLoading()
+  // },[list])
 
   useEffect(() => {
-    const fetchRepositories = async (username: string) => {
+    const fetchRepositories = async (username: string, page: number) => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const items = await getUserRepos(username);
+        const items = await getUserRepos(username, page);
+
+        if (items.length === 0) setHaveMore(false);
+        else setHaveMore(true);
 
         const updatedRepos = items
           ? items.map((repo) => ({
@@ -47,7 +58,8 @@ export function UserRepositoriesModal({
             }))
           : [];
 
-        setRepositories(updatedRepos || []);
+        setRepositories((pre) => [...pre, ...updatedRepos]);
+        setCurrentPage(page);
       } catch (error) {
         console.error("Error fetching repositories:", error);
         setError("Failed to load repositories. Please try again.");
@@ -55,13 +67,10 @@ export function UserRepositoriesModal({
         setIsLoading(false);
       }
     };
-    if (isOpen && username) {
-      fetchRepositories(username);
-    } else {
-      setRepositories([]);
-      setError(null);
+    if (isOpen && username && currentPage === (page - 1)) {
+      fetchRepositories(username, page);
     }
-  }, [isOpen, username, isBookmarked]);
+  }, [isOpen, username, isBookmarked, page, currentPage]);
 
   const handleBookmark = async (repository: GitRepo) => {
     try {
@@ -80,7 +89,15 @@ export function UserRepositoriesModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        onClose();
+        setRepositories([]);
+        setError(null);
+        setPage(1);
+        setCurrentPage(0);
+      }
+    }}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader className="sticky">
           <DialogTitle className="flex items-center gap-2">
@@ -188,6 +205,20 @@ export function UserRepositoriesModal({
               </div>
             </div>
           ))}
+          {haveMore && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Load more"
+              )}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
