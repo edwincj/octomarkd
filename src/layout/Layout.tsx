@@ -1,8 +1,11 @@
 import { type FC } from "react";
 import { Outlet, NavLink } from "react-router";
-import { Bookmark, FolderGit, Search } from "lucide-react";
+import { Bookmark, FolderGit, LogOut, Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthProvider";
 
 const Layout: FC = () => {
+  const {user, logout} = useAuth();
   const navItems = [
     {
       name: "Dashboard",
@@ -45,6 +48,16 @@ const Layout: FC = () => {
               </NavLink>
             ))}
           </nav>
+          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            <span className="text-sm font-medium">{user?.name}</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={logout}>
+            <LogOut className="h-5 w-5" />
+            <span className="sr-only">Logout</span>
+          </Button>
+        </div>
         </div>
       </header>
       <main className="flex-1 p-8 w-full">
