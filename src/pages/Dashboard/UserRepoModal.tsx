@@ -34,11 +34,6 @@ export function UserRepositoriesModal({
   const { addBookMark, isBookmarked } = useBookMarks();
   const [page, setPage] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
-  // const list = useGetInfiniteUserRepos({user: username ?? '', enabled: isOpen, page: 1});
-
-  // useEffect(() => {
-  //   setIsLoading()
-  // },[list])
 
   useEffect(() => {
     const fetchRepositories = async (username: string, page: number) => {
@@ -48,7 +43,7 @@ export function UserRepositoriesModal({
       try {
         const items = await getUserRepos(username, page);
 
-        if (items.length === 0) setHaveMore(false);
+        if (items.length < 30) setHaveMore(false);
         else setHaveMore(true);
 
         const updatedRepos = items
