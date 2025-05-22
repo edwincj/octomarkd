@@ -48,6 +48,7 @@ const baseRepo = {
   private: false,
   fork: false,
   url: '',
+  updated_at: '',
 };
 
 describe('<RepoResults />', () => {

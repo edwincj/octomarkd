@@ -23,7 +23,7 @@ vi.mock('@/components/ui/avatar', () => ({
   AvatarFallback: (props: any) => <div>{props.children}</div>,
 }));
 vi.mock('./UserRepoModal', () => ({
-  UserRepositoriesModal: ({ isOpen, username, onClose }: any) => isOpen ? <div data-testid="modal">Modal for {username}</div> : null,
+  UserRepositoriesModal: ({ isOpen, username }: any) => isOpen ? <div data-testid="modal">Modal for {username}</div> : null,
 }));
 
 const baseUser = {
@@ -31,6 +31,7 @@ const baseUser = {
   login: 'octocat',
   avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4',
   html_url: 'https://github.com/octocat',
+  repos_url: 'https://github.com/octocat/repos',
 };
 
 describe('<UserResults />', () => {

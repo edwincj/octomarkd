@@ -137,10 +137,7 @@ describe("<Bookmarks />", () => {
       stargazers_count: 1,
       forks_count: 2,
       language: "JS",
-      node_id: "",
-      private: false,
-      fork: false,
-      url: "",
+      updated_at: '2024-01-01T00:00:00Z',
     });
     render(<Bookmarks />);
     const file = new File(["full_name,date\noctocat/Hello-World,2024-01-01"], "test.csv", { type: "text/csv" });

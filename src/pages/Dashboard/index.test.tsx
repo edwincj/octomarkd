@@ -23,8 +23,8 @@ vi.mock('lucide-react', () => ({
   Search: () => <span data-testid="icon-search" />,
   User: () => <span data-testid="icon-user" />,
 }));
-vi.mock('@/pages/dashboard/UserResults', () => ({ UserResults: (props: any) => <div data-testid="user-results">Results</div> }));
-vi.mock('@/pages/dashboard/RepoResults', () => ({ RepoResults: (props: any) => <div data-testid="repo-results">Repo Results</div> }));
+vi.mock('@/pages/dashboard/UserResults', () => ({ UserResults: () => <div data-testid="user-results">Results</div> }));
+vi.mock('@/pages/dashboard/RepoResults', () => ({ RepoResults: () => <div data-testid="repo-results">Repo Results</div> }));
 
 vi.mock('@/services/github', () => {
   return {
@@ -139,11 +139,6 @@ const fakeRepo = {
   watchers: 0,
   default_branch: '',
   score: 1,
-};
-const fakeUserResponse = {
-  items: [fakeUser],
-  total_count: 1,
-  incomplete_results: false,
 };
 const fakeRepoResponse = {
   items: [fakeRepo],

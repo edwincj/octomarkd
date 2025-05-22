@@ -21,10 +21,7 @@ const baseRepo: GitRepo = {
   stargazers_count: 5,
   forks_count: 2,
   language: 'TypeScript',
-  node_id: '',
-  private: false,
-  fork: false,
-  url: '',
+  updated_at: '',
 };
 
 function renderWithProvider(children: React.ReactNode) {
